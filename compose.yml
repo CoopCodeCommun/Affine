@@ -22,6 +22,18 @@ services:
       - REDIS_SERVER_HOST=redis
       - DATABASE_URL=postgresql://${DB_USERNAME}:${DB_PASSWORD}@postgres:5432/${DB_DATABASE:-affine}
     restart: unless-stopped
+    labels:
+      # requiered
+      - "traefik.enable=true" 
+      - "traefik.docker.network=frontend"
+      - "traefik.http.routers.test_machine.tls.certresolver=myresolver"
+      - "traefik.http.services.test_machine.loadbalancer.server.port=3010"
+      - "traefik.http.routers.test_machine.rule=Host(`$DOMAIN`)"
+    networks:
+      - affine
+      - frontend
+
+
 
   affine_migration:
     image: ghcr.io/toeverything/affine-graphql:${AFFINE_REVISION:-stable}
@@ -41,6 +53,11 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    networks:
+      - affine
+      - frontend
+
+
 
   redis:
     image: redis
@@ -51,6 +68,9 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    networks:
+      - affine
+
 
   postgres:
     image: postgres:16
@@ -72,3 +92,12 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+
+    networks:
+      - affine
+
+networks:
+  frontend:
+    external: true
+  affine:
+    internal: true
