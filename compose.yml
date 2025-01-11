@@ -28,7 +28,7 @@ services:
       - "traefik.docker.network=frontend"
       - "traefik.http.routers.test_machine.tls.certresolver=myresolver"
       - "traefik.http.services.test_machine.loadbalancer.server.port=3010"
-      - "traefik.http.routers.test_machine.rule=Host(`$DOMAIN`)"
+      - "traefik.http.routers.test_machine.rule=Host(`$AFFINE_SERVER_HOST`)"
     networks:
       - affine
       - frontend
